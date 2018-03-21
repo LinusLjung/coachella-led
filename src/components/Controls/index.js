@@ -1,7 +1,12 @@
 import React, { Component } from 'react';
 import './css.css';
+import path from 'path';
 
 class Controls extends Component {
+  static defaultProps = {
+    media: {}
+  };
+
   handleWidthChange = e => {
     const value = e.currentTarget.value;
 
@@ -32,11 +37,43 @@ class Controls extends Component {
     this.props.setCount(Number(value));
   };
 
+  handleMediaChange = e => {
+    const value = e.currentTarget.value;
+
+    if (!value) {
+      return;
+    }
+
+    this.props.setMedia(value);
+  };
+
+  handleColorChange = e => {
+    const value = e.currentTarget.value;
+
+    if (!value) {
+      return;
+    }
+
+    this.props.setColor(value);
+  };
+
+  handleOpacityChange = e => {
+    const value = e.currentTarget.value;
+
+    console.log(e, value);
+
+    if (!value) {
+      return;
+    }
+
+    this.props.setOpacity(value);
+  };
+
   render() {
     return (
       <div className='controls'>
         <div className='input-wrap'>
-          <label htmlFor='inputWidth'>Width</label>
+          <label htmlFor='inputWidth'>{ 'Width' }</label>
           <input
             type='number'
             id='inputWidth'
@@ -46,7 +83,7 @@ class Controls extends Component {
         </div>
 
         <div className='input-wrap'>
-          <label htmlFor='inputHeight'>Height</label>
+          <label htmlFor='inputHeight'>{ 'Height' }</label>
           <input
             type='number'
             id='inputHeight'
@@ -56,13 +93,43 @@ class Controls extends Component {
         </div>
 
         <div className='input-wrap'>
-          <label htmlFor='inputCount'>Count</label>
+          <label htmlFor='inputCount'>{ 'Count' }</label>
           <input
             type='number'
             id='inputCount'
             value={ this.props.count }
             onChange={ this.handleCountChange }
           />
+        </div>
+
+        <div className='input-wrap'>
+          { Object.keys(this.props.media).map(key => {
+            const media = this.props.media[key];
+
+            return (
+              <div key={ media }>
+                <label htmlFor={ media }>{ path.basename(media) }</label>
+                <input
+                  type='radio'
+                  name='media'
+                  id={ media }
+                  onChange={ this.handleMediaChange }
+                  value={ media }
+                  checked={ media === this.props.selectedMedia }
+                />
+              </div>
+            );
+          } ) }
+        </div>
+
+        <div className='input-wrap'>
+          <label htmlFor='inputColor'>{ 'Color' }</label>
+          <input id='inputColor' type='color' value={ this.props.color } onChange={ this.handleColorChange }/>
+        </div>
+
+        <div className='input-wrap'>
+          <label htmlFor='inputOpacity'>{ 'Opacity' }</label>
+          <input id='inputOpacity' type='number' value={ this.props.opacity } min={ 0 } max={ 1 } step={ .01 } onChange={ this.handleOpacityChange }/>
         </div>
       </div>
     );
