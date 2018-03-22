@@ -7,6 +7,12 @@ class Controls extends Component {
     media: {}
   };
 
+  componentWillMount() {
+    this.setState({
+      host: this.props.host
+    });
+  }
+
   handleWidthChange = e => {
     const value = e.currentTarget.value;
 
@@ -60,8 +66,6 @@ class Controls extends Component {
   handleOpacityChange = e => {
     const value = e.currentTarget.value;
 
-    console.log(e, value);
-
     if (!value) {
       return;
     }
@@ -72,6 +76,7 @@ class Controls extends Component {
   render() {
     return (
       <div className='controls'>
+        <h1>{ 'Screen' }</h1>
         <div className='input-wrap'>
           <label htmlFor='inputWidth'>{ 'Width' }</label>
           <input
@@ -102,6 +107,18 @@ class Controls extends Component {
           />
         </div>
 
+        <h1>{ 'Overlay' }</h1>
+        <div className='input-wrap'>
+          <label htmlFor='inputColor'>{ 'Color' }</label>
+          <input id='inputColor' type='color' value={ this.props.color } onChange={ this.handleColorChange }/>
+        </div>
+
+        <div className='input-wrap'>
+          <label htmlFor='inputOpacity'>{ 'Opacity' }</label>
+          <input id='inputOpacity' type='number' value={ this.props.opacity } min={ 0 } max={ 1 } step={ .01 } onChange={ this.handleOpacityChange }/>
+        </div>
+
+        <h1>{ 'Media' }</h1>
         <div className='input-wrap'>
           { Object.keys(this.props.media).map(key => {
             const media = this.props.media[key];
@@ -120,16 +137,6 @@ class Controls extends Component {
               </div>
             );
           } ) }
-        </div>
-
-        <div className='input-wrap'>
-          <label htmlFor='inputColor'>{ 'Color' }</label>
-          <input id='inputColor' type='color' value={ this.props.color } onChange={ this.handleColorChange }/>
-        </div>
-
-        <div className='input-wrap'>
-          <label htmlFor='inputOpacity'>{ 'Opacity' }</label>
-          <input id='inputOpacity' type='number' value={ this.props.opacity } min={ 0 } max={ 1 } step={ .01 } onChange={ this.handleOpacityChange }/>
         </div>
       </div>
     );

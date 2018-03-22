@@ -2,7 +2,6 @@ const timeoutHandles = {};
 
 function debounce(callback, key = 'general', timeout = 500) {
   return function(key, value) {
-    console.log(key, value, timeoutHandles);
     if (timeoutHandles[key]) {
       window.clearTimeout(timeoutHandles[key]);
     }

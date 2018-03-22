@@ -8,6 +8,15 @@ import Screen from './components/Screen';
 import Controls from './components/Controls';
 
 class App extends Component {
+  messageHandlers = {
+    SET_WIDTH: data => this.setScreenWidth(data.value),
+    SET_HEIGHT: data => this.setScreenHeight(data.value),
+    SET_COUNT: data => this.setScreenCount(data.value),
+    SET_MEDIA: data => this.setMedia(data.value),
+    SET_OVERLAY_COLOR: data => this.setColor(data.value),
+    SET_OVERLAY_OPACITY: data => this.setOpacity(data.value),
+  };
+
   componentWillMount() {
     this.setState({
       screen: {
@@ -16,11 +25,73 @@ class App extends Component {
         count: storage.getValue('count') || 1,
         media: storage.getValue('media'),
         overlay: {
-          color: storage.getValue('color') || '#000',
+          color: storage.getValue('color') || '#000000',
           opacity: storage.getValue('opacity') || 0
         }
       }
     });
+
+    this.connectToServer('localhost', this.handleServerConnect);
+  }
+
+  connectToServer(ip, callback = f => f) {
+    const ws = this.ws = new WebSocket('ws://' + ip + ':8080');
+
+    ws.addEventListener('open', (e) => {
+      console.log(e);
+      callback();
+    });
+
+    ws.addEventListener('error', function (e) {
+      console.log(e);
+    });
+  }
+
+  getId() {
+    let id = storage.getValue('id');
+
+    if (!id) {
+      id = Math.ceil(Math.random() * 10000);
+      storage.setValue('id', id);
+    }
+
+    return id;
+  }
+
+  handleServerConnect = () => {
+    this.ws.addEventListener('message', (e) => {
+      const data = JSON.parse(e.data);
+
+      switch (data.type) {
+        case 'GET_DATA':
+          this.sendMessage('DATA', {
+            ...this.state,
+            media
+          });
+          break;
+
+        default:
+          try {
+            this.messageHandlers[data.type](data);
+          } catch (e) {
+            console.log('Message handler not found for type ' + data.type);
+          }
+      }
+
+      console.log(e);
+    });
+
+    this.sendMessage('CLIENT_TYPE', {
+      type: 'host',
+      id: this.getId()
+    });
+  };
+
+  sendMessage(type, value) {
+    this.ws.send(JSON.stringify({
+      type,
+      value
+    }));
   }
 
   setScreenProp(key, value) {
