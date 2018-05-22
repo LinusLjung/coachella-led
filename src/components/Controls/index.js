@@ -73,10 +73,19 @@ class Controls extends Component {
     this.props.setOpacity(value);
   };
 
+  handleFullscreenClick() {
+    var element = document.documentElement;
+
+    var requestFullScreen = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || element.msRequestFullScreen;
+
+    requestFullScreen.call(element);
+  }
+
   render() {
     return (
       <div className='controls'>
         <h1>{ 'Screen' }</h1>
+        <div className='action-fullscreen' onClick={ this.handleFullscreenClick }>Go fullscreen</div>
         <div className='input-wrap'>
           <label htmlFor='inputWidth'>{ 'Width' }</label>
           <input

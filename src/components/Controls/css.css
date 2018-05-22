@@ -1,3 +1,10 @@
 .controls {
   display: inline-block;
 }
+
+.action-fullscreen {
+  cursor: pointer;
+  text-decoration: underline;
+  margin-bottom: 1em;
+  font-size: 1.3em;
+}
