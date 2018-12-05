@@ -29,7 +29,7 @@ class Screen extends Component {
           height: this.getHeight(),
         } }
       >
-        { !!this.props.media && this.renderMedia(this.props.media) }
+        { !!this.props.selectedMedia && this.renderMedia(this.props.selectedMedia) }
         <div
           className='screen-overlay'
           style={ {

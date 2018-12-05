@@ -1,44 +1,57 @@
 const WebSocket = require('ws');
-const os = require('os');
 
 const wss = new WebSocket.Server({ port: 8080 });
 
-function getIPAddresses() {
-  const ifaces = os.networkInterfaces();
+const screens = {};
 
-  Object.keys(ifaces).forEach(function (ifname) {
-    let alias = 0;
-
-    ifaces[ifname].forEach(function (iface) {
-      if ('IPv4' !== iface.family || iface.internal !== false) {
-        // skip over internal (i.e. 127.0.0.1) and non-ipv4 addresses
-        return;
-      }
-
-      if (alias >= 1) {
-        // this single interface has multiple ipv4 addresses
-        console.log(ifname + ':' + alias, iface.address);
-      } else {
-        // this interface has only one ipv4 adress
-        console.log(ifname, iface.address);
-      }
-      ++alias;
-    });
-  });
+function actionGetScreens() {
+  return {
+    action: 'GET_SCREENS',
+    screens,
+  };
 }
 
-let host;
-const clients = [];
+wss.on('connection', function (client) {
+  console.log('connection');
 
-wss.on('connection', function (ws) {
-  ws.on('message', function (message) {
+  client.on('message', function (message) {
     parsed = JSON.parse(message);
+    action = parsed.action;
 
     console.log(parsed);
 
+    switch (action) {
+      case 'REGISTER_SCREEN':
+        client.id = parsed.id;
+
+      case 'SET_SCREEN_STATE':
+        screens[parsed.id] = parsed.screen;
+
+        wss.clients.forEach(function (c) {
+          if (c.id === client.id) {
+            return;
+          }
+
+          try {
+            c.send(message)
+          } catch (e) {
+            console.log('Tried to send message to client');
+            console.log(e);
+          }
+        });
+
+        break;
+      case 'GET_SCREENS':
+        client.send(JSON.stringify(actionGetScreens()));
+
+        break;
+    }
+
+    return;
+
     switch (parsed.type) {
       case 'CLIENT_TYPE':
-        parsed.value.ws = ws;
+        parsed.value.client = client;
 
         if (parsed.value.type === 'host') {
           host = parsed.value;
@@ -53,25 +66,34 @@ wss.on('connection', function (ws) {
 
           console.log(clients);
 
-          ws.send(JSON.stringify({
+          client.send(JSON.stringify({
             type: 'CONNECTED'
           }));
         }
 
         break;
       case 'GET_DATA':
-        host.ws.send(message);
+        host.client.send(message);
 
         break;
       case 'DATA':
-        clients.forEach(({ ws }) => ws.send(message));
+        clients.forEach(({ client }) => client.send(message));
 
         break;
 
       default:
-        host.ws.send(message);
+        host.client.send(message);
     }
   });
 
-  console.log('New connection');
+  client.on('close', function () {
+    console.log('close', client.id);
+    if (screens[client.id]) {
+      delete screens[client.id];
+
+      wss.clients.forEach(function (client) {
+        client.send(JSON.stringify(actionGetScreens()));
+      });
+    }
+  });
 });

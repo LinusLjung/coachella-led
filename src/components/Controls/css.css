@@ -8,3 +8,11 @@
   margin-bottom: 1em;
   font-size: 1.3em;
 }
+
+.controls-id {
+  font-weight: bold;
+}
+
+.input-wrap {
+  margin-top: .5em;
+}

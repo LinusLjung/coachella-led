@@ -1,2 +1,3 @@
-// Example export:
-// export { default as single } from './single_screen_black.mp4';
+const context = require.context('./', false);
+
+export default context.keys().filter(key => ['./', './index', './index.js'].indexOf(key) === -1).map(key => context(key));

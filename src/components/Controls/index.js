@@ -4,7 +4,7 @@ import path from 'path';
 
 class Controls extends Component {
   static defaultProps = {
-    media: {}
+    media: []
   };
 
   componentWillMount() {
@@ -85,7 +85,8 @@ class Controls extends Component {
     return (
       <div className='controls'>
         <h1>{ 'Screen' }</h1>
-        <div className='action-fullscreen' onClick={ this.handleFullscreenClick }>Go fullscreen</div>
+        { this.props.isScreen && <div className='action-fullscreen' onClick={ this.handleFullscreenClick }>Go fullscreen</div> }
+        <div className='controls-id'>{ `${this.props.isScreen ? 'Screen ID' : 'Connected to screen'}: ${this.props.id}` }</div>
         <div className='input-wrap'>
           <label htmlFor='inputWidth'>{ 'Width' }</label>
           <input
@@ -129,9 +130,7 @@ class Controls extends Component {
 
         <h1>{ 'Media' }</h1>
         <div className='input-wrap'>
-          { Object.keys(this.props.media).map(key => {
-            const media = this.props.media[key];
-
+          { this.props.media.map(media => {
             return (
               <div key={ media }>
                 <label htmlFor={ media }>{ path.basename(media) }</label>
